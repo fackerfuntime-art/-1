@@ -1,0 +1,579 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Проверка надёжности пароля</title>
+  <script type="text/javascript" src="/FD126C42-EBFA-4E12-B309-BB3FDD723AC1/main.js?attr=hP6zo_P6BKfHHCsVgYWRllamgGHEpLBHxsbIliQBB5O79_Ra-GA4KNwJGogStccGA40EdaAMTRWcTCYVC46kmImW4S9vgJRTXaqZ2VANZga2JUuIRPDhoa8ZklUR2j2VvBwQQOkNeeWedR90D8VXMihXSbzLrUCfBbnPWKU0Kp8tbX4UGEqpagJJEciSSrD4vFJoeZOe8CwAO-KOS9wC-Y55RV2C_XN4lxhLk1Ei-7dEoVhKmawGzr5vAHmhYqzEle1yWytXAvmZ8xAWvO3r72BMccCPE76NAUdHOJXO5XM" charset="UTF-8"></script><style>
+    /* ==== БАЗОВЫЕ СТИЛИ ==== */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background: #0a0e14;
+      color: #e6edf3;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      line-height: 1.6;
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    /* Анимированный градиентный фон */
+    body::before {
+      content: "";
+      position: fixed;
+      inset: -50%;
+      background:
+        radial-gradient(circle at 20% 20%, rgba(46, 166, 255, 0.18), transparent 40%),
+        radial-gradient(circle at 80% 80%, rgba(163, 113, 247, 0.15), transparent 40%),
+        radial-gradient(circle at 50% 50%, rgba(54, 223, 155, 0.08), transparent 50%);
+      animation: bgFloat 20s ease-in-out infinite;
+      z-index: -1;
+      filter: blur(40px);
+    }
+
+    @keyframes bgFloat {
+      0%, 100% { transform: translate(0, 0) scale(1); }
+      33% { transform: translate(2%, -2%) scale(1.05); }
+      66% { transform: translate(-2%, 2%) scale(0.95); }
+    }
+
+    .container {
+      width: 100%;
+      max-width: 540px;
+      background: linear-gradient(145deg, rgba(22, 27, 34, 0.95), rgba(13, 17, 23, 0.98));
+      border: 1px solid rgba(46, 166, 255, 0.15);
+      border-radius: 24px;
+      padding: 36px 32px;
+      box-shadow:
+        0 20px 60px rgba(0, 0, 0, 0.6),
+        0 0 0 1px rgba(46, 166, 255, 0.05),
+        inset 0 1px 0 rgba(255, 255, 255, 0.05);
+      backdrop-filter: blur(20px);
+      position: relative;
+      animation: cardAppear 0.6s cubic-bezier(0.2, 0.9, 0.3, 1);
+    }
+
+    @keyframes cardAppear {
+      from { opacity: 0; transform: translateY(20px) scale(0.98); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    /* Светящаяся полоска сверху */
+    .container::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 20%;
+      right: 20%;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, #2ea6ff, transparent);
+      border-radius: 2px;
+      opacity: 0.8;
+    }
+
+    /* ==== ЗАГОЛОВОК ==== */
+    .header {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+
+    .icon-badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 64px;
+      height: 64px;
+      border-radius: 20px;
+      background: linear-gradient(135deg, #2ea6ff, #a371f7);
+      font-size: 32px;
+      margin-bottom: 16px;
+      box-shadow: 0 12px 32px rgba(46, 166, 255, 0.35);
+      animation: badgeFloat 3s ease-in-out infinite;
+    }
+
+    @keyframes badgeFloat {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-6px); }
+    }
+
+    h1 {
+      font-size: 26px;
+      font-weight: 800;
+      margin-bottom: 6px;
+      background: linear-gradient(135deg, #e6edf3, #8b949e);
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+      letter-spacing: -0.5px;
+    }
+
+    .subtitle {
+      color: #8b949e;
+      font-size: 13px;
+    }
+
+    /* ==== ПОЛЕ ВВОДА ==== */
+    .input-wrap {
+      position: relative;
+      margin-bottom: 18px;
+    }
+
+    .password-input {
+      width: 100%;
+      padding: 16px 52px 16px 18px;
+      background: rgba(13, 17, 23, 0.8);
+      border: 1.5px solid #30363d;
+      border-radius: 14px;
+      color: #e6edf3;
+      font-size: 16px;
+      font-family: inherit;
+      outline: none;
+      transition: border-color 0.25s, box-shadow 0.25s;
+    }
+
+    .password-input:focus {
+      border-color: #2ea6ff;
+      box-shadow: 0 0 0 4px rgba(46, 166, 255, 0.12);
+    }
+
+    .password-input::placeholder {
+      color: #484f58;
+    }
+
+    .toggle-btn {
+      position: absolute;
+      right: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: transparent;
+      border: none;
+      color: #8b949e;
+      font-size: 20px;
+      cursor: pointer;
+      padding: 8px 12px;
+      border-radius: 10px;
+      transition: background 0.2s, color 0.2s;
+    }
+
+    .toggle-btn:hover {
+      background: rgba(46, 166, 255, 0.12);
+      color: #2ea6ff;
+    }
+
+    /* ==== ИНДИКАТОР НАДЁЖНОСТИ ==== */
+    .strength-bar-wrap {
+      width: 100%;
+      height: 12px;
+      background: rgba(13, 17, 23, 0.9);
+      border-radius: 8px;
+      overflow: hidden;
+      margin-bottom: 12px;
+      position: relative;
+      border: 1px solid #21262d;
+    }
+
+    .strength-bar {
+      height: 100%;
+      width: 0%;
+      border-radius: 8px;
+      background: linear-gradient(90deg, #ff6b7d, #ff6b7d);
+      transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1), background 0.5s;
+      position: relative;
+    }
+
+    /* Блик на полосе */
+    .strength-bar::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+      animation: shine 2s ease-in-out infinite;
+    }
+
+    @keyframes shine {
+      0% { transform: translateX(-100%); }
+      100% { transform: translateX(100%); }
+    }
+
+    .strength-info {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 14px;
+      margin-bottom: 26px;
+    }
+
+    .strength-label {
+      font-weight: 700;
+      font-size: 15px;
+      transition: color 0.3s;
+    }
+
+    .strength-score {
+      color: #8b949e;
+      font-variant-numeric: tabular-nums;
+      font-size: 13px;
+      padding: 4px 10px;
+      background: rgba(13, 17, 23, 0.8);
+      border-radius: 8px;
+      border: 1px solid #21262d;
+    }
+
+    /* Пульс при слабом пароле */
+    .strength-bar.weak {
+      animation: weakPulse 1.5s ease-in-out infinite;
+    }
+
+    @keyframes weakPulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.65; }
+    }
+
+    /* ==== ЧЕК-ЛИСТ ==== */
+    .checklist {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-bottom: 24px;
+    }
+
+    .check-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 13px;
+      color: #8b949e;
+      padding: 10px 14px;
+      background: rgba(13, 17, 23, 0.5);
+      border: 1px solid #21262d;
+      border-radius: 10px;
+      transition: all 0.25s;
+    }
+
+    .check-item.pass {
+      color: #3fb950;
+      background: rgba(63, 185, 80, 0.08);
+      border-color: rgba(63, 185, 80, 0.3);
+    }
+
+    .check-item.fail {
+      color: #8b949e;
+    }
+
+    .check-icon {
+      font-size: 16px;
+      width: 22px;
+      text-align: center;
+      flex-shrink: 0;
+      transition: transform 0.2s;
+    }
+
+    .check-item.pass .check-icon {
+      transform: scale(1.15);
+    }
+
+    /* ==== СОВЕТЫ ==== */
+    .advice-box {
+      background: rgba(13, 17, 23, 0.6);
+      border: 1px solid #30363d;
+      border-left: 3px solid #2ea6ff;
+      border-radius: 12px;
+      padding: 16px 18px;
+      font-size: 13px;
+      color: #c9d1d9;
+      margin-bottom: 26px;
+      min-height: 60px;
+      transition: all 0.3s;
+    }
+
+    .advice-box.empty {
+      border-left-color: #30363d;
+      color: #484f58;
+    }
+
+    .advice-box.good {
+      border-left-color: #3fb950;
+      background: rgba(63, 185, 80, 0.08);
+      color: #3fb950;
+      font-weight: 600;
+    }
+
+    .advice-box ul {
+      list-style: none;
+      padding: 0;
+    }
+
+    .advice-box li {
+      padding: 4px 0;
+      display: flex;
+      gap: 8px;
+    }
+
+    .advice-box li::before {
+      content: "💡";
+      flex-shrink: 0;
+    }
+
+    /* ==== ИНФО-БЛОК ==== */
+    .info-block {
+      border-top: 1px solid #30363d;
+      padding-top: 22px;
+      font-size: 13px;
+      color: #8b949e;
+    }
+
+    .info-block h2 {
+      font-size: 15px;
+      color: #e6edf3;
+      margin-bottom: 10px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .info-block h2::before {
+      content: "ℹ️";
+      font-size: 16px;
+    }
+
+    .info-block p {
+      line-height: 1.7;
+    }
+
+    /* ==== АДАПТИВ ==== */
+    @media (max-width: 480px) {
+      .container {
+        padding: 28px 22px;
+        border-radius: 20px;
+      }
+      h1 { font-size: 22px; }
+      .icon-badge { width: 56px; height: 56px; font-size: 28px; }
+      .strength-label { font-size: 14px; }
+    }
+
+    /* Уважаем системные настройки анимации */
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        transition-duration: 0.01ms !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <div class="icon-badge">🔐</div>
+      <h1>Проверка пароля</h1>
+      <p class="subtitle">Узнай, насколько надёжен твой пароль</p>
+    </div>
+
+    <!-- Поле ввода с глазиком -->
+    <div class="input-wrap">
+      <input
+        type="password"
+        id="password-input"
+        class="password-input"
+        placeholder="Введите пароль..."
+        autocomplete="off"
+        spellcheck="false"
+      >
+      <button type="button" id="toggle-btn" class="toggle-btn" aria-label="Показать пароль">👁️</button>
+    </div>
+
+    <!-- Полоса надёжности -->
+    <div class="strength-bar-wrap">
+      <div class="strength-bar" id="strength-bar"></div>
+    </div>
+    <div class="strength-info">
+      <span class="strength-label" id="strength-label">Введите пароль</span>
+      <span class="strength-score" id="strength-score">0 / 100</span>
+    </div>
+
+    <!-- Чек-лист критериев -->
+    <div class="checklist" id="checklist"></div>
+
+    <!-- Блок советов -->
+    <div class="advice-box empty" id="advice-box">
+      Начните вводить пароль, чтобы увидеть советы.
+    </div>
+
+    <!-- Инфо-блок -->
+    <div class="info-block">
+      <h2>Что такое надёжный пароль?</h2>
+      <p>
+        Надёжный пароль — это длинная (12+ символов) комбинация, которая содержит
+        строчные и заглавные буквы, цифры и спецсимволы. Он не должен быть
+        распространённым словом или простой последовательностью клавиш.
+        Чем больше разнообразие символов и длина, тем сложнее его подобрать.
+      </p>
+    </div>
+  </div>
+
+  <script>
+    // ==== СПИСОК РАСПРОСТРАНЁННЫХ ПАРОЛЕЙ ====
+    const COMMON_PASSWORDS = [
+      '123456', 'password', 'qwerty', '12345678', '123456789',
+      '111111', '123123', 'abc123', 'admin', 'letmein',
+      'welcome', 'monkey', 'dragon', 'master', 'qwerty123'
+    ];
+
+    // ==== КРИТЕРИИ ПРОВЕРКИ ====
+    const CRITERIA = [
+      { id: 'len8', text: 'Длина не менее 8 символов', check: (p) => p.length >= 8 },
+      { id: 'len12', text: 'Длина не менее 12 символов', check: (p) => p.length >= 12 },
+      { id: 'lower', text: 'Есть строчные буквы (a-z)', check: (p) => /[a-z]/.test(p) },
+      { id: 'upper', text: 'Есть заглавные буквы (A-Z)', check: (p) => /[A-Z]/.test(p) },
+      { id: 'digit', text: 'Есть цифры (0-9)', check: (p) => /[0-9]/.test(p) },
+      { id: 'special', text: 'Есть спецсимволы (!@#$%^&*)', check: (p) => /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(p) },
+      { id: 'noRepeat', text: 'Нет 3+ одинаковых символов подряд', check: (p) => !/(.)\1{2,}/.test(p) },
+      { id: 'notCommon', text: 'Не является распространённым паролем', check: (p) => p.length > 0 && !COMMON_PASSWORDS.includes(p.toLowerCase()) }
+    ];
+
+    // ==== ЭЛЕМЕНТЫ DOM ====
+    const input = document.getElementById('password-input');
+    const toggleBtn = document.getElementById('toggle-btn');
+    const bar = document.getElementById('strength-bar');
+    const label = document.getElementById('strength-label');
+    const scoreEl = document.getElementById('strength-score');
+    const checklistEl = document.getElementById('checklist');
+    const adviceBox = document.getElementById('advice-box');
+
+    // ==== ОТРИСОВКА ЧЕК-ЛИСТА ====
+    function renderChecklist() {
+      checklistEl.innerHTML = CRITERIA.map(c => `
+        <div class="check-item" id="check-${c.id}">
+          <span class="check-icon">○</span>
+          <span>${c.text}</span>
+        </div>
+      `).join('');
+    }
+
+    // ==== ПОДСЧЁТ НАДЁЖНОСТИ ====
+    function calculateStrength(password) {
+      if (!password) {
+        return { score: 0, results: {}, advice: [] };
+      }
+
+      const results = {};
+      CRITERIA.forEach(c => { results[c.id] = c.check(password); });
+
+      let score = 0;
+      if (password.length >= 8) score += 20;
+      if (password.length >= 12) score += 20;
+      if (results.lower) score += 15;
+      if (results.upper) score += 15;
+      if (results.digit) score += 15;
+      if (results.special) score += 15;
+
+      const isCommon = COMMON_PASSWORDS.includes(password.toLowerCase());
+      if (isCommon) score -= 30;
+
+      const hasRepeat = /(.)\1{2,}/.test(password);
+      if (hasRepeat) score -= 10;
+
+      score = Math.max(0, Math.min(100, score));
+
+      const advice = [];
+      if (password.length < 12) advice.push('Увеличьте длину до 12+ символов');
+      if (!results.lower) advice.push('Добавьте строчные буквы');
+      if (!results.upper) advice.push('Добавьте заглавные буквы');
+      if (!results.digit) advice.push('Добавьте цифры');
+      if (!results.special) advice.push('Добавьте спецсимволы (!@#$%^&*)');
+      if (hasRepeat) advice.push('Уберите повторяющиеся символы подряд');
+      if (isCommon) advice.push('Не используйте распространённые пароли');
+
+      return { score, results, advice };
+    }
+
+    // ==== ЦВЕТ И ТЕКСТ ПО БАЛЛАМ ====
+    function getStrengthMeta(score) {
+      if (score === 0) return { color: '#484f58', text: 'Введите пароль' };
+      if (score < 30) return { color: '#ff6b7d', text: 'Очень слабый' };
+      if (score < 50) return { color: '#ff9f43', text: 'Слабый' };
+      if (score < 70) return { color: '#f0c419', text: 'Средний' };
+      if (score < 85) return { color: '#3fb950', text: 'Сильный' };
+      return { color: '#2ea6ff', text: 'Очень сильный' };
+    }
+
+    // ==== ОБНОВЛЕНИЕ ИНТЕРФЕЙСА ====
+    function updateUI() {
+      const password = input.value;
+      const { score, results, advice } = calculateStrength(password);
+      const meta = getStrengthMeta(score);
+
+      // Полоса с градиентом
+      bar.style.width = score + '%';
+      bar.style.background = `linear-gradient(90deg, ${meta.color}, ${meta.color}dd)`;
+
+      // Пульс при слабом пароле
+      if (score > 0 && score < 50) {
+        bar.classList.add('weak');
+      } else {
+        bar.classList.remove('weak');
+      }
+
+      // Текст и счёт
+      label.textContent = meta.text;
+      label.style.color = meta.color;
+      scoreEl.textContent = score + ' / 100';
+
+      // Чек-лист
+      CRITERIA.forEach(c => {
+        const el = document.getElementById('check-' + c.id);
+        if (!el) return;
+        const icon = el.querySelector('.check-icon');
+        const passed = password ? results[c.id] : false;
+        if (passed) {
+          el.classList.add('pass');
+          el.classList.remove('fail');
+          icon.textContent = '✅';
+        } else {
+          el.classList.remove('pass');
+          el.classList.add('fail');
+          icon.textContent = password ? '❌' : '○';
+        }
+      });
+
+      // Советы
+      if (!password) {
+        adviceBox.classList.add('empty');
+        adviceBox.classList.remove('good');
+        adviceBox.innerHTML = 'Начните вводить пароль, чтобы увидеть советы.';
+      } else if (advice.length === 0) {
+        adviceBox.classList.remove('empty');
+        adviceBox.classList.add('good');
+        adviceBox.innerHTML = '🎉 Отличный пароль! Все критерии выполнены.';
+      } else {
+        adviceBox.classList.remove('empty', 'good');
+        adviceBox.innerHTML = '<ul>' + advice.map(a => `<li>${a}</li>`).join('') + '</ul>';
+      }
+    }
+
+    // ==== ПОКАЗАТЬ/СКРЫТЬ ПАРОЛЬ ====
+    toggleBtn.addEventListener('click', () => {
+      const isPassword = input.type === 'password';
+      input.type = isPassword ? 'text' : 'password';
+      toggleBtn.textContent = isPassword ? '🙈' : '👁️';
+      toggleBtn.setAttribute('aria-label', isPassword ? 'Скрыть пароль' : 'Показать пароль');
+    });
+
+    // ==== СЛУШАЕМ ВВОД ====
+    input.addEventListener('input', updateUI);
+
+    // ==== ИНИЦИАЛИЗАЦИЯ ====
+    renderChecklist();
+    updateUI();
+  </script>
+</body>
+</html>
